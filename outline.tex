@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage[breaklinks=true]{hyperref}
+\usepackage{color}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{natbib}
+\usepackage[margin=0.75in]{geometry}
+\usepackage[singlespacing]{setspace}
+\usepackage[bottom]{footmisc}
+\usepackage{floatrow}
+\usepackage{float,graphicx}
+\usepackage{enumerate}
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{assumption}{Assumption}
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+
+
+\newcommand{\todo}[1]{{\color{red}{TO DO: \sc #1}}}
+
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\integers}{\mathbb{Z}}
+\newcommand{\naturals}{\mathbb{N}}
+\newcommand{\rationals}{\mathbb{Q}}
+
+\newcommand{\ind}{\mathbb{I}} % Indicator function
+\newcommand{\pr}{\mathbb{P}} % Generic probability
+\newcommand{\ex}{\mathbb{E}} % Generic expectation
+\newcommand{\var}{\textrm{Var}}
+\newcommand{\cov}{\textrm{Cov}}
+
+\newcommand{\normal}{N} % for normal distribution 
+\newcommand{\eps}{\varepsilon}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\newcommand{\argmax}{\textrm{argmax}}
+\newcommand{\argmin}{\textrm{argmin}}
+
+\title{Outline: PRNGs and Permutations}
+\author{Kellie Ottoboni}
+\date{Draft \today}
+\begin{document}
+\maketitle
+
+%\newpage
+
+%\begin{abstract}
+
+
+%\end{abstract}
+
+%\newpage
+
+\begin{itemize}
+\item The first order of business is to investigate how R and Python generate pseudo-random numbers and
+what algorithms they use to sample, permute, shuffle, etc.
+This may require looking at the raw code since the R documentation doesn't say how \texttt{sample} works.
+\item \textbf{Permutation testing with one sample:} \\
+We have $N$ observations and we're doing some permutation test with them.
+To approximate the null distribution, we want to sample uniformly at random from all $N!$ permutations of the observations.
+Is it possible to obtain all of these permutations, or are we constrained by the period of the PRNG?
+\begin{itemize}
+\item I am totally open to changing notation! This is temporary.
+\item Suppose the period of the PRNG is $\mathcal{P}$.
+\item Suppose the permutation algorithm takes $K$ operations.
+\item If $K \equiv 0 \mod \mathcal{P}$, then the PRNG will start over at some point. If $\mathcal{P}/K < N!$, then we can't reach all possible permutations.
+Otherwise, we're in good shape and we will just start to repeat permutations before the PRNG reaches the end of its period.
+\item What happens if $\mathcal{P}/K < N!$ but $K$ does not divide $\mathcal{P}$?
+\end{itemize}
+\item What is the ``best'' way to do permutations to avoid reaching the end of the period?
+There are two issues at tension: the period of the PRNG and the computational complexity of the PRNG and shuffling algorithm.
+We want to balance computational efficiency with correctness.
+\item What happens if we generate pseudo-random numbers in a distributed fashion?
+Obviously one has to set the seed differently for each thread, but does this improve the risk of repeating?
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+
+\end{document}
