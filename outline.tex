@@ -54,6 +54,44 @@
 
 %\newpage
 
+\section{Standard Implementations}
+ The first order of business is to investigate how R and Python generate pseudo-random numbers and
+what algorithms they use to sample, permute, shuffle, etc.
+This may requires looking at the source code.
+\begin{itemize}
+\item There doesn't seem to be any way to see what \texttt{sample} does directly.
+However, someone has implemented a C++ version for RcppArmadillo at \url{https://github.com/RcppCore/RcppArmadillo/blob/master/inst/include/RcppArmadilloExtensions/sample.h}.
+Someone else has put the R base C source code in an unaffiliated GitHub repository at \url{https://github.com/SurajGupta/r-source/blob/master/src/main/random.c}.
+Here, we see that R's \texttt{sample} is broken down into four separate functions.w
+The functions sample by first randomly selecting indices for the new sample, then copying the original data into the return vector using the new indices.
+\begin{enumerate}
+\item \textbf{Equal probability sampling with replacement:} 
+for each of $k$ samples, generate a uniform PRN;
+multiply it by the population size $n$ and add one, then take the floor function.
+This also requires $k$ uniform PRNs.
+\item \textbf{Equal probability sampling without replacement:} 
+Start with a population of size $n$.
+For each of $k$ samples, generate a uniform PRN;
+multiply it by the current population size $\tilde{n}$ and take the floor, then add one -- this is the selected index;
+decrement the current population size $\tilde{n}$ by one and put the last remaining index in the place of the selected index.
+This only requires $k$ uniform PRNs.
+\item \textbf{Unequal probability sampling with replacement:} 
+Sort sampling probabilities and the corresponding indices in descending order; 
+compute cumulative probabilities; 
+for each of $n$ samples, generate a random uniform and select the index $j$ such that the random number is less than or equal to the $j$th cumulative probability but not the $j+1$st.  
+This requires $n$ uniform PRNs.  
+OR Walker's alias method for large samples.
+\item \textbf{Unequal probability sampling without replacement:} 
+Sort sampling probabilities and the corresponding indices in descending order; 
+for each of $n$ samples, generate a random uniform and multiply it by the total mass (starting with total mass 1);
+choose the index $j$ such that the random mass is less than or equal to sum of the first $j$ sampling probabilities but greater than the $j-1$st; \textcolor{red}{is this explanation right?}
+subtract the sampling probability for the $j$th element from the total mass, remove the $j$th element from the sampling probabilities and indices, and repeat.
+This also requires $n$ uniform PRNs.
+\end{enumerate}
+\end{itemize}
+
+
+
 \section{May 30, 2016: Thoughts on coding samples}
 
 Suppose the $n$ elements of the population are in a canonical order.
@@ -91,19 +129,6 @@ $$ H = \log_2 {{n} \choose {k}}.$$
 
 \section{May 17, 2016}
 \begin{itemize}
-\item The first order of business is to investigate how R and Python generate pseudo-random numbers and
-what algorithms they use to sample, permute, shuffle, etc.
-This may require looking at the raw code since the R documentation doesn't say how \texttt{sample} works.
-\begin{itemize}
-\item There doesn't seem to be any way to see what \texttt{sample} does.
-However, someone has implemented a C++ version for RcppArmadillo at \url{https://github.com/RcppCore/RcppArmadillo/blob/master/inst/include/RcppArmadilloExtensions/sample.h}.
-The functions here permute in place by first randomly selecting \textit{indices} for the new sample, then copying the original data into the return vector using the new indices.
-\begin{enumerate}
-\item \texttt{SampleReplace} calls \texttt{unif\_rand()} and multiplies by the vector length.
-\item \texttt{SampleNoReplace} creates a vector of the numbers $1, \dots, N$, chooses a random index from the list and puts that into the \texttt{index} vector, then replaces the sampled element with the last and removes the last element.
-\item \texttt{ProbSampleReplace} does a sort in descending order of sampling probability. Then
-\end{enumerate}
-\end{itemize}
 \item \textbf{Permutation testing with one sample:} \\
 We have $N$ observations and we're doing some permutation test with them.
 To approximate the null distribution, we want to sample uniformly at random from all $N!$ permutations of the observations.
