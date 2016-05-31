@@ -54,10 +54,56 @@
 
 %\newpage
 
+\section{May 30, 2016: Thoughts on coding samples}
+
+Suppose the $n$ elements of the population are in a canonical order.
+There is a one-to-one map between strings of at most $n$ bits with exactly $k$ nonzero bits
+and samples of size $k$. 
+Since $n$ and $k$ are known, we can suppose without loss of generality that $k \le n-k \le n/2$
+(otherwise, code the elements omitted from the sample instead of the included elements).
+
+Code a sample by listing bits up to the $k$th nonzero bit, not inclusive.
+This completely determines the sample.
+If the code contains $m$ bits, it specifies the first $k-1$ sampled elements, and then the $(m+1)$st element of the population is included in the sample.
+Elements $m+2, \dots, n-1, n$ are not.
+This is a \textbf{prefix code}: no complete code is the beginning of another code.
+
+Using this coding, the total number of bits needed to specify all possible samples:
+\begin{itemize}
+\item there is  $1 = {{k-1} \choose {0}}$ sample that takes exactly $k-1$ bits to code, namely all $1$s
+\item there are $k = {{k} \choose {1}}$ samples that take exactly $k$ bits: the samples only omit one of the first $k$ elements
+\item there are ${{k+1} \choose 2} $ that take exactly $k+1$ bits
+\item there are $ {{k+2} \choose 3} $ that take exactly $k+2$ bits
+\item there are $ {{k+\ell-1} \choose {\ell}} $ that take exactly $k+\ell-1$ bits. Equivalently, there are ${{\ell} \choose {\ell - k + 1}}$ that take exactly $\ell$ bits.
+\item there are $ {{n-2} \choose {n - k+1}} = {{n-2} \choose {k-1}} $ that take exactly $n-2$ bits
+\item there are $ {{n-2} \choose {k-1}} $ samples that take exactly $n-1$ bits: they are exactly the $ {{n-2} \choose {k-1}} $ codes of length $n-2$ bits with an additional $0$ appended. They encode samples where the last element of the population is included.
+\end{itemize}
+Adding up all the ways to code samples, the number of bits for the entire code is
+%$$ b = (n-1) + \sum_{\ell=k}^{n-1} \ell {{\ell-1} \choose {\ell-k}}. $$  (we should be able to simplify this)
+$$ b = (n-1)  {{n-2} \choose {k-1}} + \sum_{\ell=k-1}^{n-2} \ell {{\ell} \choose {\ell-k+1}}.$$
+
+
+
+Theoretical lower bound by Shannon entropy:
+
+$$ H = \log_2 {{n} \choose {k}}.$$
+
+
+\section{May 17, 2016}
 \begin{itemize}
 \item The first order of business is to investigate how R and Python generate pseudo-random numbers and
 what algorithms they use to sample, permute, shuffle, etc.
 This may require looking at the raw code since the R documentation doesn't say how \texttt{sample} works.
+\begin{itemize}
+\item There doesn't seem to be any way to see what \texttt{sample} does.
+However, someone has implemented a C++ version for RcppArmadillo at \url{https://github.com/RcppCore/RcppArmadillo/blob/master/inst/include/RcppArmadilloExtensions/sample.h}.
+The functions here permute in place by first randomly selecting \textit{indices} for the new sample, then copying the original data into the return vector using the new indices.
+\begin{enumerate}
+\item \texttt{SampleReplace} calls \texttt{unif\_rand()} and multiplies by the vector length.
+\item \texttt{SampleNoReplace} creates a vector of the numbers $1, \dots, N$, chooses a random index from the list and puts that into the \texttt{index} vector, then replaces the sampled element with the last and removes the last element.
+\item \texttt{ProbSampleReplace} does a sort in descending order of sampling probability. Then
+\end{enumerate}
+\end{itemize}
 \item \textbf{Permutation testing with one sample:} \\
 We have $N$ observations and we're doing some permutation test with them.
 To approximate the null distribution, we want to sample uniformly at random from all $N!$ permutations of the observations.
