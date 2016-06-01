@@ -59,6 +59,10 @@
 what algorithms they use to sample, permute, shuffle, etc.
 This may requires looking at the source code.
 \begin{itemize}
+\item Python, R, SAS, SPSS, and Matlab use the Mersenne Twister as their default PRNG.
+Stata uses the KISS PRNG.
+Excel 2003 used the Wichmann-Hill generator, but implemented it incorrectly; Excel 2007 attempted to fix the bug but failed (McCullough 2008).
+Now, Excel uses the Mersenne Twister.
 \item There doesn't seem to be any way to see what \texttt{sample} does directly.
 However, someone has implemented a C++ version for RcppArmadillo at \url{https://github.com/RcppCore/RcppArmadillo/blob/master/inst/include/RcppArmadilloExtensions/sample.h}.
 Someone else has put the R base C source code in an unaffiliated GitHub repository at \url{https://github.com/SurajGupta/r-source/blob/master/src/main/random.c}.
@@ -87,6 +91,30 @@ for each of $n$ samples, generate a random uniform and multiply it by the total 
 choose the index $j$ such that the random mass is less than or equal to sum of the first $j$ sampling probabilities but greater than the $j-1$st; \textcolor{red}{is this explanation right?}
 subtract the sampling probability for the $j$th element from the total mass, remove the $j$th element from the sampling probabilities and indices, and repeat.
 This also requires $n$ uniform PRNs.
+\end{enumerate}
+\item The Python \texttt{random} library source code is at \url{https://hg.python.org/cpython/file/2.7/Lib/random.py}.
+\begin{enumerate}
+\item The random number generator functions rely on generating sequences of random bits.
+These can then be turned into integers or numbers on a continuous interval.
+\item \texttt{random.choice} takes a sequence as input, generates a random uniform number and multiplies it by the length of the sequence, and returns the element with the nearest integer index.
+\item \texttt{random.shuffle} implements the Knuth shuffle. 
+The number of PRNs required is equal to the length of the sequence to shuffle.
+\item \texttt{random.sample} does equal probability sampling \textbf{without replacement}, like an SRS.
+There are two implementations.
+The first uses a discard pool to track which elements have been selected.
+This is the chosen method if the sample size to population size ratio is large.
+This requires $k$ PRNs and the algorithm matches R's implementation.
+The second algorithm does not discard elements that have already been sampled, but does sampling \textit{with replacement}.
+At each step, the function checks if the selected item is already in the sample.
+If so, then it tries until it samples something not yet in the sample.
+This method requires \textit{at least} $k$ PRNs.
+\end{enumerate}
+\item The \texttt{numpy.random} library source code is available on GitHub at \url{https://github.com/numpy/numpy/blob/master/numpy/random/mtrand/mtrand.pyx}.
+\begin{enumerate}
+\item \texttt{np.random.choice} does sampling with/without replacement and with equal or unequal probabilities.
+This is the closest thing to R's \texttt{sample}.
+All of the four varieties of sampling are implemented the same way.
+SRS sampling relies on \texttt{permutation}, which shuffles an array.
 \end{enumerate}
 \end{itemize}
 
@@ -120,7 +148,9 @@ Adding up all the ways to code samples, the number of bits for the entire code i
 %$$ b = (n-1) + \sum_{\ell=k}^{n-1} \ell {{\ell-1} \choose {\ell-k}}. $$  (we should be able to simplify this)
 $$ b = (n-1)  {{n-2} \choose {k-1}} + \sum_{\ell=k-1}^{n-2} \ell {{\ell} \choose {\ell-k+1}}.$$
 
-
+\begin{align*}
+ b &= (n-1)  {{n-2} \choose {k-1}} + \sum_{\ell=k-1}^{n-2} \ell {{\ell} \choose {k-1}}
+\end{align*}
 
 Theoretical lower bound by Shannon entropy:
 
