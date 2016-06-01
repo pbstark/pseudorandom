@@ -1,20 +1,209 @@
-## Simple Random Sampling: Not So Simple
-### Department of Mathematics<br />EPFL<br />Lausanne, Switzerland<br />24 June 2016
+% -*-Mode: LaTeX;-*-
 
-#### Philip B. Stark<br /> Department of Statistics <br /> University of California, Berkeley<br />and<br />Theoretical Computer Science Section, ITU Copenhagen<br />http://www.stat.berkeley.edu/~stark | [@philipbstark](https://twitter.com/philipbstark)
+%\documentclass[fleqn,handout]{beamer}
+\documentclass[fleqn]{beamer}
+\mode<presentation>
+{
+  \usetheme{Singapore} % clean!
+  \usecolortheme{orchid}
+\setbeamercolor{umbcboxes}{bg=violet!15,fg=black}
+%\usetheme{Goettingen}
+%  \usetheme{Pittsburgh} % simple, but right flush titles
+%  \usetheme{Copenhagen}
+%  \usetheme{PaloAlto}
+%  \usetheme{Rochester} % very simple, no headings
+%  \usetheme{Berkeley} % ugly square items
+  \setbeamercovered{transparent}  % or whatever (possibly just delete it)
+}
 
-#### With Kellie Ottoboni (Department of Statistics, UC Berkeley)
+\setbeamertemplate{caption}[numbered]
+\setbeamerfont{caption}{size=\tiny}
 
----
-<br />
 
-.center[***Everything should be made as simple as possible&mdash;but not simpler.***]
-.align-right[&mdash;Albert Einstein and/or Roger Sessions]
+%\mode<handout>{\setbeamercolor{background canvas}{bg=black!5}}
 
----
-### Abstract
-A simple random sample (SRS) of size `\(k\)` from a population of size `\(n\)` is a sample drawn 
-at random in such a way that every subset of `\(k\)` of the `\(n\)` items is equally likely to be selected. 
+%\usepackage{pgfpages}
+%\pgfpagelayout{2 on 1}[a4paper,border shrink=5mm]
+
+\usepackage[english]{babel} % or whatever
+
+\usepackage[latin1]{inputenc} % or whatever
+
+% special fonts
+%\usepackage{mathtime}
+%\usepackage{mathptmx}
+%\usepackage{mtpro2}
+% The following loads mtpro and defines some common MTPro options [2, 4]
+%\usepackage[amssymbols,subscriptcorrection,slantedGreek,nofontinfo]{mtpro2}
+
+% Define text fonts
+%\usepackage[T1]{fontenc}		% use this if European fonts (ec) package is installed
+%\usepackage{textcomp}			% adds some additional symbols
+\usepackage[scaled=0.92]{helvet}	% set Helvetica as the sans-serif font
+\renewcommand{\rmdefault}{ptm}		% set Times as the default text font
+
+% If AMS-LaTeX is used, it can be loaded before or after mtpro2
+%\usepackage{amsmath}
+
+%\usepackage{times}
+%\usepackage[T1]{fontenc}
+%\usepackage{mathtime}
+%\usepackage{txfonts}
+% Or whatever. Note that the encoding and the font should match. If T1
+% does not look nice, try deleting the line with the fontenc.
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+% \AtBeginSubsection[]
+% {
+%   \begin{frame}<beamer>
+%     \frametitle{Outline}
+%     \tableofcontents[currentsection,currentsubsection]
+%   \end{frame}
+% }
+
+
+% If you wish to uncover everything in a step-wise fashion, uncomment
+% the following command:
+
+%\beamerdefaultoverlayspecification{<+->}
+\usepackage{amsmath}
+\usepackage{comment}
+%\usepackage{caption}
+\usepackage{threeparttable}
+\usepackage{booktabs}
+\usepackage{dcolumn}
+\usepackage{multirow}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{,}{D{,}{,}{-1}}
+% Table
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}
+\newtheorem{prop}[thm]{Proposition}
+\newcommand{\postscript}{postscript}
+\newcommand{\tdir}{.}
+\usepackage[longnamesfirst]{natbib}
+\bibpunct{(}{)}{;}{author-year}{}{,}
+\usepackage{bibentry}
+\newcommand{\newblock}{} % to trick bibentry/bbl
+%\usepackage{epsfig,rotate}
+\usepackage{graphicx}
+\usepackage{url}
+
+\parskip 0.66ex
+
+\def\eqd{\,{\buildrel d \over =}\,}
+\definecolor{darkGreen}{rgb}{0.1,0.5,0.1}
+\definecolor{mgrey}{rgb}{.7,.7,.7}
+\newcommand{\Ia}{\textcolor{yellow}}
+\newcommand{\Iy}{\textcolor{yellow}}
+
+\newcommand{\Ib}{\textcolor{blue}}
+\newcommand{\Ic}{\textcolor{blue}}
+
+\newcommand{\Ig}{\textcolor{green}}
+
+\newcommand{\Ir}{\textcolor{red}}
+\newcommand{\Ie}{\textcolor{red}}
+\newfont{\msbm}{msbm10 at 12pt}
+\newcommand{\bR}{\msbm{R}}
+\newcommand{\bfR}{{\bR}}
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+
+\newcommand{\bB}{\mbox{\bf B}}
+\newcommand{\bI}{\mbox{\bf I}}
+\newcommand{\bS}{\mbox{\bf S}}
+\newcommand{\bb}{\mbox{\bf b}}
+\newcommand{\bm}{\mbox{\bf m}}
+\newcommand{\bp}{\mbox{\bf p}}
+\newcommand{\ff}{\mbox{\bf f}}
+\newcommand{\bc}{\mbox{\bf c}}
+\newcommand{\bq}{\mbox{\bf q}}
+\newcommand{\bt}{\mbox{\bf t}}
+\newcommand{\bu}{\mbox{\bf u}}
+\newcommand{\bOne}{\mbox{\bf 1}}
+\newcommand{\bZero}{\mbox{\bf 0}}
+\newcommand{\bBeta}{{\bf \beta}}
+\newcommand{\cI}{{\mathcal{I}}}
+\newcommand{\cC}{{\mathcal{C}}}
+\newcommand{\cK}{{\mathcal{K}}}
+\newcommand{\cW}{{\cal W}}
+\newcommand{\cL}{{\cal L}}
+\newcommand{\cJ}{{\cal J}}
+\newcommand{\cE}{{\cal E}}
+\newcommand{\cF}{{\cal F}}
+\newcommand{\cP}{{\cal P}}
+\newcommand{\cX}{{\cal X}}
+\newcommand{\cN}{{\cal N}}
+\newcommand{\PP}{\Prob}
+\newcommand{\card}{\#}
+
+\def\Real{\hbox{I\kern-.1667em\hbox{R}}}
+\def\Pr{\hbox{I\kern-.1667em\hbox{P}}}
+\def\EE{\hbox{I\kern-.1667em\hbox{E}}}
+\newcommand{\bfRn}{\bfR^n}
+\newcommand{\bfRN}{\bfR^N}
+
+\newcommand{\heading}[1]{\begin{center}{\large #1}\end{center}}
+
+\renewcommand {\thefootnote} {\fnsymbol{footnote}}
+
+
+
+%\newcommand{\B}{\textbf}
+\newcommand{\B}{\text}
+
+\newcommand{\MyPerp}{\perp \! \! \! \perp}
+
+%\newcommand{\ppause}{\pause} %use this for presentation version
+%\newcommand{\ppause}{\Iy{@}} %use this for print version, a yellow @ will be printed where there are pauses
+\newcommand{\ppause}{} % overkill
+
+\begin{document}
+
+\title[] % (optional, use only with long paper titles)
+{Simple Random Sampling: Not Simple}
+
+%\author[Author, Another] % (optional, use only with lots of authors)
+\author{Philip B.~Stark}
+\institute{{\small Department of Statistics\\University of California, Berkeley \\
+and Section of Theoretical Computer Science, ITU, Copenhagen}}
+\author{Kellie Ottoboni}
+\author{Ron L. Rivest}
+
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+%\author[Author, Another] % (optional, use only with lots of authors)
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+
+% \date % [Short Occasion] % (optional)
+\date{Department of Mathematics//EPFL//Lausanne, Switzerland//24 June 2016}
+
+
+\subject{Random Sampling}
+% This is only inserted into the PDF information catalog. Can be left
+% out.
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+% \pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-filename}
+% \logo{\pgfuseimage{university-logo}}
+
+
+\begin{frame}
+  \titlepage
+}
+
+\end{frame}
+
+\begin{frame}
+  {\small A simple random sample (SRS) of size $k$ from a population of size $n$ is a sample drawn 
+at random in such a way that every subset of $k$ of the $n$ items is equally likely to be selected. 
 The theory of inference from SRSs is fundamental in statistics;
 many statistical techniques and formulae assume that the data are an SRS.
 True SRSs are rare; in practice, people tend to draw samples by using pseudo-random number generators 
@@ -24,33 +213,45 @@ producing samples that can be treated as if they are SRSs.
 In fact, the PRNG algorithm and the algorithm for drawing samples using the PRNG matter
 enormously.
 Some widely used methods are particularly bad.
-They cannot generate all subsets of size `\(k\)`; the subsets they do generate
+They cannot generate all subsets of size $k$; the subsets they do generate
 may not have equal frequencies; and they are numerically inefficient.
 Using such methods introduces bias and makes standard uncertainty calculations meaningless.
+}
+\end{frame}
+
+
+\begin{frame}
+
+.center[***Everything should be made as simple as possible&mdash;but not simpler.***]
+.align-right[&mdash;Albert Einstein and/or Roger Sessions]
+
+---
+### Abstract
+
 
 ---
 ### Strategies for Random Sampling
 
-+ Permute and take the top `\(k\)`
++ Permute and take the top $k$
     - assign number to each and sort
-        + requires `\(O(n \log n)\)` including`\(n\)` PRNs and `\(O(n \log n)\)` to sort 
+        + requires $O(n \log n)$ including$n$ PRNs and $O(n \log n)$ to sort 
     - shuffle 
         + Knuth in-place shuffle
         + Fisher-Yates
 + Reservoir methods
     - Algorithms R and Z
-    - suitable for streaming; don't need to know `\(N\)`
-+ Select `\(k\)`
-    - can use just `\(k\)` PRNs 
+    - suitable for streaming; don't need to know $N$
++ Select $k$
+    - can use just $k$ PRNs 
     - CLRS algorithm
 
 ---
 ### Some bounds
 
-Shannon entropy `\(H\)`:
+Shannon entropy $H$:
 
 Want to send a message consisting of one "letter" in an alphabet consisting of
-`\(n \choose k\)` letters.
+$n \choose k$ letters.
 The letters have equal frequency in the language.
 
 $$ H = \sum_{j} ({{n} \choose {k}})^{-1} \log_2 ({{n} \choose {k}})^{-1}.$$
@@ -61,25 +262,25 @@ $$ H = \sum_{j} ({{n} \choose {k}})^{-1} \log_2 ({{n} \choose {k}})^{-1}.$$
 
 Suppose the elements of the population are in a canonical order.
 
-1:1 map between strings of at most `\(n\)` bits with exactly `\(k\)` nonzero bits
-& samples of size `\(k\)`.
+1:1 map between strings of at most $n$ bits with exactly $k$ nonzero bits
+& samples of size $k$.
 
-Since `\(n\)` and `\(k\)` are known, can suppose wlog that `\(k \le n-k \le n/2\)`
+Since $n$ and $k$ are known, can suppose wlog that $k \le n-k \le n/2$
 (otherwise, code the omitted elements instead of the included elements).
 
-Code sample by listing bits up to the `\(k\)`th nonzero bit.
+Code sample by listing bits up to the $k$th nonzero bit.
 This is a _prefix code_: no complete code is the beginning of another code.
 
 Total number of bits needed to specify all possible samples:
 
-+ `\(1 = {{k-1} \choose {0}}\)takes exactly `\(k\)` bits
-+ `\(k = {{k} \choose {1}}\)` take exactly `\(k+1\)` bits
-+ `\({{k+1} \choose 2} \)` take exactly `\(k+2\)` bits
-+ `\( {{k+2} \choose 3} \)` take exactly `\(k+3\)` bits
++ $1 = {{k-1} \choose {0}}\)takes exactly $k$ bits
++ $k = {{k} \choose {1}}$ take exactly $k+1$ bits
++ ${{k+1} \choose 2} $ take exactly $k+2$ bits
++ $ {{k+2} \choose 3} $ take exactly $k+3$ bits
 + &hellip;
-+ `\( {{k+\ell-1} \choose {\ell}} \)` take exactly `\(k+\ell\)` bits
++ $ {{k+\ell-1} \choose {\ell}} $ take exactly $k+\ell$ bits
 + &hellip;
-+ `\( {{n-2} \choose {k-1}} +1 \)` take exactly `\(n-1\)` bits
++ $ {{n-2} \choose {k-1}} +1 $ take exactly $n-1$ bits
 
 $$ b = (n-1) + \sum_{\ell=k}^{n-1} \ell {{\ell-1} \choose {\ell-k}} $$
 
@@ -88,7 +289,7 @@ $$ b = (n-1) + \sum_{\ell=k}^{n-1} \ell {{\ell-1} \choose {\ell-k}} $$
 ---
 ### Bitwise
 
-Suppose have an algorithm that generates iid `\(U\{0, 1\}\)` bits.
+Suppose have an algorithm that generates iid $U\{0, 1\}$ bits.
 
 
 
@@ -126,7 +327,7 @@ Recursive:
         else S := s \cup {i}
         return S
     
-Not suitable for streaming, but very efficient: only `\(k\)` PRNs
+Not suitable for streaming, but very efficient: only $k$ PRNs
 
 ---
 ### Properties of PRNGs
@@ -149,13 +350,13 @@ $$U_n \equiv X_n/m$$
 
 $$ X_{n+1} \equiv (a X_n + c)\; \mathrm{mod} \; m, \;\; n \ge 0.$$
 
-`\( m > 0\)` is the modulus
+$ m > 0$ is the modulus
 
-`\( 0 \le a < m\)` multiplier
+$ 0 \le a < m$ multiplier
 
-`\(0 \le c < m\)` increment
+$0 \le c < m$ increment
 
-`\(0 \le X_0 < m\)` seed
+$0 \le X_0 < m$ seed
 
 ---
 ### RANDU is planely terrible
