@@ -1,0 +1,205 @@
+## Simple Random Sampling: Not So Simple
+### Department of Mathematics<br />EPFL<br />Lausanne, Switzerland<br />24 June 2016
+
+#### Philip B. Stark<br /> Department of Statistics <br /> University of California, Berkeley<br />and<br />Theoretical Computer Science Section, ITU Copenhagen<br />http://www.stat.berkeley.edu/~stark | [@philipbstark](https://twitter.com/philipbstark)
+
+#### With Kellie Ottoboni (Department of Statistics, UC Berkeley)
+
+---
+<br />
+
+.center[***Everything should be made as simple as possible&mdash;but not simpler.***]
+.align-right[&mdash;Albert Einstein and/or Roger Sessions]
+
+---
+### Abstract
+A simple random sample (SRS) of size `\(k\)` from a population of size `\(n\)` is a sample drawn 
+at random in such a way that every subset of `\(k\)` of the `\(n\)` items is equally likely to be selected. 
+The theory of inference from SRSs is fundamental in statistics;
+many statistical techniques and formulae assume that the data are an SRS.
+True SRSs are rare; in practice, people tend to draw samples by using pseudo-random number generators 
+(PRNGs) and algorithms that map a set of pseudo-random numbers into a subset of the population. 
+Most statisticians take for granted that the software they use "does the right thing," 
+producing samples that can be treated as if they are SRSs.
+In fact, the PRNG algorithm and the algorithm for drawing samples using the PRNG matter
+enormously.
+Some widely used methods are particularly bad.
+They cannot generate all subsets of size `\(k\)`; the subsets they do generate
+may not have equal frequencies; and they are numerically inefficient.
+Using such methods introduces bias and makes standard uncertainty calculations meaningless.
+
+---
+### Strategies for Random Sampling
+
++ Permute and take the top `\(k\)`
+    - assign number to each and sort
+        + requires `\(O(n \log n)\)` including`\(n\)` PRNs and `\(O(n \log n)\)` to sort 
+    - shuffle 
+        + Knuth in-place shuffle
+        + Fisher-Yates
++ Reservoir methods
+    - Algorithms R and Z
+    - suitable for streaming; don't need to know `\(N\)`
++ Select `\(k\)`
+    - can use just `\(k\)` PRNs 
+    - CLRS algorithm
+
+---
+### Some bounds
+
+Shannon entropy `\(H\)`:
+
+Want to send a message consisting of one "letter" in an alphabet consisting of
+`\(n \choose k\)` letters.
+The letters have equal frequency in the language.
+
+$$ H = \sum_{j} ({{n} \choose {k}})^{-1} \log_2 ({{n} \choose {k}})^{-1}.$$
+
+
+---
+###
+
+Suppose the elements of the population are in a canonical order.
+
+1:1 map between strings of at most `\(n\)` bits with exactly `\(k\)` nonzero bits
+& samples of size `\(k\)`.
+
+Since `\(n\)` and `\(k\)` are known, can suppose wlog that `\(k \le n-k \le n/2\)`
+(otherwise, code the omitted elements instead of the included elements).
+
+Code sample by listing bits up to the `\(k\)`th nonzero bit.
+This is a _prefix code_: no complete code is the beginning of another code.
+
+Total number of bits needed to specify all possible samples:
+
++ `\(1 = {{k-1} \choose {0}}\)takes exactly `\(k\)` bits
++ `\(k = {{k} \choose {1}}\)` take exactly `\(k+1\)` bits
++ `\({{k+1} \choose 2} \)` take exactly `\(k+2\)` bits
++ `\( {{k+2} \choose 3} \)` take exactly `\(k+3\)` bits
++ &hellip;
++ `\( {{k+\ell-1} \choose {\ell}} \)` take exactly `\(k+\ell\)` bits
++ &hellip;
++ `\( {{n-2} \choose {k-1}} +1 \)` take exactly `\(n-1\)` bits
+
+$$ b = (n-1) + \sum_{\ell=k}^{n-1} \ell {{\ell-1} \choose {\ell-k}} $$
+
+
+
+---
+### Bitwise
+
+Suppose have an algorithm that generates iid `\(U\{0, 1\}\)` bits.
+
+
+
+---
+### Knuth's algorithm
+
+Suitable for streaming
+
+---
+### Vitter, 1985: Reservoir sampling, algorithm R, algorithm Z. 
+
+    ReservoirSample(S, R)
+    R[1...k] :=  S[1...k]
+    for i = k+1 to n
+        j := Random(1, i)   
+        if j <= k
+            R[j] := S[i]
+
+Related to Fisher-Yates shuffle
+
+Doesn't necessarily give SRS unless input is shuffled already...
+
+---
+### Cormen, Leiserson, Rivest, Stein, 2009. _Introduction to Algorithms_
+
+Recursive:
+
+    RandomSample(k,n)
+    if k == 0
+        return {}
+    else S := RandomSample(k-1, n-1)
+        i := Random(1, n)
+        if i \in S
+            S := S \cup {n}
+        else S := s \cup {i}
+        return S
+    
+Not suitable for streaming, but very efficient: only `\(k\)` PRNs
+
+---
+### Properties of PRNGs
++ period
++ state space
++ distribution
+
+### Quality
++ not good enough for statistics
+    - linear congruential (LCG)
+    - combined linear congruential (cLCG)
++ good enough for most statistical purposes
+    - Mersenne Twister
++ good enough for cryptography
+
+---
+### Linear Congruential Generators (Lehmer, 1949)
+
+$$U_n \equiv X_n/m$$
+
+$$ X_{n+1} \equiv (a X_n + c)\; \mathrm{mod} \; m, \;\; n \ge 0.$$
+
+`\( m > 0\)` is the modulus
+
+`\( 0 \le a < m\)` multiplier
+
+`\(0 \le c < m\)` increment
+
+`\(0 \le X_0 < m\)` seed
+
+---
+### RANDU is planely terrible
+
+$$ X_{n+1} \equiv 65539 X_n\; \mathrm{mod} \; 2^{31}, \;\; n \ge 0.$$
+![By Luis Sanchez at English Wikipedia - Transferred from en.wikipedia to Commons by sevela.p., CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=3832343](./PRNGPics/randu.png)
+
+"widely considered to be one of the most ill-conceived random number generators ever designed" https://en.wikipedia.org/wiki/RANDU
+
+---
+### Middle-square
+
+---
+### DIEHARD tests
+
+---
+### Tests of representativeness
+
+Occasionally see people testing whether a random sample is "representative" by
+comparing the values of covariates with expectations.
+
+Rejecting a sample as "unrepresentative" results in a procedure that is not SRS.
+
+---
+### Best Practices
+
++ Use a source of real randomness to set the seed, e.g., rolls of a 10-sided die.
++ Record the seed.
++ Use a PRNG at least as good as the Mersenne Twister. 
+Avoid linear congruential generators and the Wichmann-Hill generator.
++ Use open-source software, and record the version of the software you use.
++ Use a sampling algorithm that does not "waste randomness." 
+It is generally better to avoid permuting the entire population.
+Some common software packages incorporate efficient algorithms
++ Consider the size of the problem: are your PRNG and sampling algorithm adequate?
++ Avoid "tests of representativeness." They alter the distribution of the sample.
+
+---
+### References
+
+Knuth, D., 1997. _The Art of Computer Programming, V. II_, 3rd edition
+
+Marsaglia, G., 1968. Random numbers fall mainly in the planes, PNAS.
+
+Cormen, T.H., C.E. Leiserson, R.L. Rivest, and C. Stein, 2009. 
+_Introduction to Algorithms_, 3rd edition, MIT Press.
+
