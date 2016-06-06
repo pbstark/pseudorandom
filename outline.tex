@@ -54,6 +54,59 @@
 
 %\newpage
 
+\section{June 6, 2016: Notes}
+There are several moving parts:
+\begin{itemize}
+\item \textbf{How are samples encoded?} 
+We describe samples with a code, which is a sequence from a finite set of elementary symbols.
+If we use bits to code samples (1 if the item is selected, 0 if not), the Shannon lower bound on the number
+of words in the code is $H = \log_2 {n \choose k}$.
+If we use a different set of elementary symbols for our code, this lower bound will be different.
+In particular, if there are $s$ symbols to choose from, then $H = \log_s {n \choose k}$.
+\item \textbf{What does the PRNG output?}
+Do we imagine that the PRNG gives a sequence of 32 bits?
+Does it give a number in the interval $[0, 1]$?
+Does it give us an integer on some interval?
+We need to be specific about this, as it will affect our counting of states.
+It might be the case that to generate a number in $[0, 1]$, it requires several random bits to be generated.
+\textbf{Answer:} let's think of it as outputting a 32-bit integer.
+The Mersenne Twister is k-distributed to 32 bits for $1 \leq k \leq 623$.
+\item What happens when we reach the end of the PRNG's period, 
+but the period is not a multiple of the number of PRNs needed to generate a sample?
+\end{itemize}
+
+Define $H_{nk} = \log_2 {n \choose k}$.
+Total number of bits from PRNG = $period \times integer-length$. 
+This divided by $H_{nk}$ is greater than or equal to the total number of samples of k of n without recycling/per period.
+
+
+Do this calculation for LCG: put in $a, b, m$, gives upper bound on period.
+Then take $n, k$ pair and do calculation.
+Do randU and Mersenne Twister as well.
+
+
+\subsection{Period length of linear congruential generator}
+(from Wikipedia)
+
+The period of a general mixed congruential generator is at most m, and for some choices of factor a much less than that. The mixed congruential generator will have a full period for all seed values if and only if:
+
+\begin{enumerate}
+\item $m$ and the offset $c$ are relatively prime,
+\item $a-1$ is divisible by all prime factors of $m$,
+\item $a-1$ is divisible by $4$ if $m$ is divisible by $4$.
+\end{enumerate}
+
+These three requirements are referred to as the Hull-Dobell Theorem.
+While LCGs are capable of producing pseudorandom numbers which can pass formal tests for randomness, this is extremely sensitive to the choice of the parameters $c$, $m$, and $a$.
+
+\subsection{Factorial bounds}
+
+Bound on binomial coefficients
+
+$$ \frac{2^{nH(q)}}{n+1} \leq {n \choose k} \leq 2^{nH(q)}$$
+where $H(q) = -q \log_2(q) - (1-q)\log_2(1-q)$, and $q = k/n$.
+
+
 \section{Standard Implementations}
 \subsection{Psuedo-random number generators}
 Python, R, SAS, SPSS, and Matlab use the Mersenne Twister as their default PRNG.
