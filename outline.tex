@@ -54,7 +54,7 @@
 
 %\newpage
 \section{June 20, 2016: Random Integer Generation}
-\texttt{numpy.random.randint} is a function that generates uniformly distributed random integers.
+\texttt{numpy.random.randint} (from numpy version 1.11.0) is a function that generates uniformly distributed random integers.
 The user specifies lower and upper bounds, as well as the number of integers to generate and the data type of the result.
 Depending on the data type specified, the function uses a different way to generate the random integers.
 Options for the data type are \texttt{bool}, \texttt{int8}, \texttt{int16}, \texttt{int32}, \texttt{int64}, \texttt{uint8}, \texttt{uint16}, \texttt{uint32}, and \texttt{uint64}.
@@ -200,10 +200,10 @@ where $H(q) = -q \log_2(q) - (1-q)\log_2(1-q)$, and $q = k/n$.
 
 \section{Standard Implementations}
 \subsection{Psuedo-random number generators}
-Python, R, SAS, SPSS, and Matlab use the Mersenne Twister as their default PRNG.
-Stata uses the KISS PRNG.
+At the time of writing this, Python (version 2.6 and up), R (version 3.3.0), SAS (version 9.4), SPSS (version 23.0), and Matlab (R2016a, version 9.0) use the Mersenne Twister as their default PRNG.
+Until April 2015, Stata used the KISS PRNG; the recent upgrade to version 14.0 introduced the Mersenne Twister.
 Excel 2003 used the Wichmann-Hill generator, but implemented it incorrectly; Excel 2007 attempted to fix the bug but failed (McCullough 2008).
-Now, Excel uses the Mersenne Twister.
+Now, Excel 2010 and more recent versions use the Mersenne Twister.
 
 \subsection{Sampling algorithms}
 \begin{itemize}
@@ -211,10 +211,8 @@ Now, Excel uses the Mersenne Twister.
 sort the observations according to the random index they're assigned,
 and take the top $k$ to be the sample.
 This is inefficient and requires up to $n$ PRNs to get the random ordering.
-\item There doesn't seem to be any way to see what R's \texttt{sample} does directly.
-However, someone has implemented a C++ version for RcppArmadillo at \url{https://github.com/RcppCore/RcppArmadillo/blob/master/inst/include/RcppArmadilloExtensions/sample.h}.
-Someone else has put the R base C source code in an unaffiliated GitHub repository at \url{https://github.com/SurajGupta/r-source/blob/master/src/main/random.c}.
-Here, we see that R's \texttt{sample} is broken down into four separate functions.
+\item Someone has put the R base C source code in an unaffiliated GitHub repository at \url{https://github.com/SurajGupta/r-source/blob/master/src/main/random.c}.
+Here, we see that R's \texttt{sample} (version 3.3.0) is broken down into four separate functions.
 The functions sample by first randomly selecting indices for the new sample, then copying the original data into the return vector using the new indices.
 \begin{enumerate}
 \item \textbf{Equal probability sampling without replacement:} 
@@ -240,7 +238,7 @@ choose the index $j$ such that the random mass is less than or equal to sum of t
 subtract the sampling probability for the $j$th element from the total mass, remove the $j$th element from the sampling probabilities and indices, and repeat.
 This also requires $n$ uniform PRNs.
 \end{enumerate}
-\item The Python \texttt{random} library source code is at \url{https://hg.python.org/cpython/file/2.7/Lib/random.py}.
+\item The Python (version 2.7) \texttt{random} library source code is at \url{https://hg.python.org/cpython/file/2.7/Lib/random.py}.
 \begin{enumerate}
 \item The random number generator functions rely on generating sequences of random bits.
 These can then be turned into integers or numbers on a continuous interval.
@@ -257,7 +255,7 @@ At each step, the function checks if the selected item is already in the sample.
 If so, then it tries until it samples something not yet in the sample.
 This method requires \textit{at least} $k$ PRNs.
 \end{enumerate}
-\item The \texttt{numpy.random} library source code is available on GitHub at \url{https://github.com/numpy/numpy/blob/master/numpy/random/mtrand/mtrand.pyx}.
+\item The \texttt{numpy.random} library (version 1.11.0) source code is available on GitHub at \url{https://github.com/numpy/numpy/blob/master/numpy/random/mtrand/mtrand.pyx}.
 \begin{enumerate}
 \item \texttt{np.random.choice} does sampling with/without replacement and with equal or unequal probabilities.
 This is the closest thing to R's \texttt{sample}.
